@@ -33,41 +33,47 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String userId = '1';
   String horario = '';
-  int _counterPouza = 0;
+  int id = 0;
+  String foto = '';
+  /*int _counterPouza = 0;*/
   int _counter = 0;
 
-  void _horario(msg) {
+  void _horario(i) {
     setState(() {
-      horario = msg;
+      horario = i;
+    });
+  }
+
+  void _id(i) {
+    setState(() {
+      id = i;
+    });
+  }
+
+  void _foto(i) {
+    setState(() {
+      foto = i;
     });
   }
 
   void _incrementCounter() {
     setState(() {
-      _counterPouza++;
-    });
-  }
-
-  void _desincrementCounter() {
-    setState(() {
-      _counterPouza--;
-    });
-  }
-
-  void _eduIncrementCounter() {
-    setState(() {
       _counter++;
     });
   }
 
-  void _eduDesincrementCounter() {
-    setState(() {
-      _counter--;
-    });
+  void _desincrementCounter() {
+    if (_counter > 0) {
+      setState(() {
+        _counter--;
+      });
+    }
   }
 
   Future<void> buscarDados() async {
-    final url = Uri.parse('https://servidor-632w.onrender.com/plantas/${userId}');
+    final url = Uri.parse(
+      'https://servidor-632w.onrender.com/plantas/${userId}',
+    );
 
     try {
       final response = await http.get(url);
@@ -77,9 +83,13 @@ class _MyHomePageState extends State<MyHomePage> {
         final item = data[_counter];
 
         String horarios = item['horarios'];
+        String foto = item['foto_url'];
+        int id = item['id'];
         print('Sucesso: $data');
 
         _horario(horarios);
+        _id(id);
+        _foto(foto);
       } else {
         print('Erro: status ${response.statusCode}');
       }
@@ -98,13 +108,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
       body: Center(
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Row(
+            /* Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
+                  ElevatedButton(
                   onPressed: _desincrementCounter,
                   child: const Icon(Icons.remove),
                 ),
@@ -124,42 +134,64 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: const Icon(Icons.add),
                 ),
               ],
-            ),
-
-            const SizedBox(height: 20),
-
+            ),*/
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: _eduDesincrementCounter,
-                  child: const Icon(Icons.remove),
-                ),
-                const SizedBox(width: 10),
-
-                const Text('Pegar planta '),
-
-                Text(
-                  '$_counter',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-
-                const Text('do user Vava'),
-
-                const SizedBox(width: 10),
-
-                ElevatedButton(
-                  onPressed: _eduIncrementCounter,
-                  child: const Icon(Icons.add),
+                 ElevatedButton(
+                  onPressed: () {
+                    _desincrementCounter();
+                    buscarDados();
+                  },
+                  child: const Icon(Icons.arrow_left),
                 ),
               ],
             ),
+            const SizedBox(height: 20),
+
+      Container(
+  padding: const EdgeInsets.all(20),
+  margin: const EdgeInsets.all(20),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(15),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black12,
+        blurRadius: 10,
+        offset: Offset(0, 4),
+      ),
+    ],
+  ),
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      const SizedBox(height: 10),
+
+      Text(
+        horario,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: Colors.blue,
+        ),
+      ),
+
+      if (foto != '')
+        Image.network(foto, width: 200, height: 200),
+    ],
+  ),
+),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  horario,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                ElevatedButton(
+                  onPressed: () {
+                    buscarDados();
+                    _incrementCounter();
+                  },
+                  child: const Icon(Icons.arrow_right),
                 ),
               ],
             ),
@@ -172,17 +204,31 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FloatingActionButton(
-            heroTag: "btn1",
-            onPressed: buscarDados,
+            heroTag: "Novo",
+            onPressed: () {
+              print('sera novo');
+            },
             child: const Icon(Icons.add),
           ),
 
-          const SizedBox(width: 20), // espaço entre eles
+          const SizedBox(width: 20),
 
           FloatingActionButton(
-            heroTag: "btn2",
-            onPressed: _desincrementCounter,
-            child: const Icon(Icons.remove),
+            heroTag: "Edit",
+            onPressed: () {
+              print('sera edit');
+            },
+            child: const Icon(Icons.edit),
+          ),
+
+          const SizedBox(width: 20),
+
+          FloatingActionButton(
+            heroTag: "Excluir",
+            onPressed: () {
+              print('sera excluir');
+            },
+            child: const Icon(Icons.delete_forever),
           ),
         ],
       ),
