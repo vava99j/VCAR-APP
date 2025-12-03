@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -7,46 +10,20 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'vcarros',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent),
       ),
-      home: const MyHomePage(title: 'vcarros'),
+      home: const MyHomePage(title: ''),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -54,15 +31,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String userId = '1';
+  String horario = '';
   int _counterPouza = 0;
-  int _counterDu = 0;
+  int _counter = 0;
+
+  void _horario(msg) {
+    setState(() {
+      horario = msg;
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
       _counterPouza++;
     });
   }
-   void _desincrementCounter() {
+
+  void _desincrementCounter() {
     setState(() {
       _counterPouza--;
     });
@@ -70,14 +56,38 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _eduIncrementCounter() {
     setState(() {
-      _counterDu++;
+      _counter++;
     });
   }
- void _eduDesincrementCounter() {
+
+  void _eduDesincrementCounter() {
     setState(() {
-      _counterDu--;
+      _counter--;
     });
-  } 
+  }
+
+  Future<void> buscarDados() async {
+    final url = Uri.parse('https://servidor-632w.onrender.com/plantas/${userId}');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        final item = data[_counter];
+
+        String horarios = item['horarios'];
+        print('Sucesso: $data');
+
+        _horario(horarios);
+      } else {
+        print('Erro: status ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Falha ao fazer GET: $e');
+    }
+    ;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,91 +98,94 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
       body: Center(
-       child: Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: <Widget>[
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: _desincrementCounter,
-          child: const Icon(Icons.remove),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _desincrementCounter,
+                  child: const Icon(Icons.remove),
+                ),
+                const SizedBox(width: 10),
+                const Text('Pouza deu '),
+                Text(
+                  '$_counterPouza',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+
+                const Text(' vezes pro Vava'),
+
+                const SizedBox(width: 10),
+
+                ElevatedButton(
+                  onPressed: _incrementCounter,
+                  child: const Icon(Icons.add),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _eduDesincrementCounter,
+                  child: const Icon(Icons.remove),
+                ),
+                const SizedBox(width: 10),
+
+                const Text('Pegar planta '),
+
+                Text(
+                  '$_counter',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+
+                const Text('do user Vava'),
+
+                const SizedBox(width: 10),
+
+                ElevatedButton(
+                  onPressed: _eduIncrementCounter,
+                  child: const Icon(Icons.add),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  horario,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(width: 10),
-        const Text('Pouza deu '),
-        Text(
-          '$_counterPouza',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-
-        const Text(' vezes pro Vava'),
-
-        const SizedBox(width: 10),
-
-        ElevatedButton(
-          onPressed: _incrementCounter,
-          child: const Icon(Icons.add),
-        ),
-      ],
-    ),
-
-    const SizedBox(height: 20),
-
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: _eduDesincrementCounter,
-          child: const Icon(Icons.remove),
-        ),
-        const SizedBox(width: 10),
-
-        const Text('Edu deu '),
-
-        Text(
-          '$_counterDu',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-
-        const Text(' vezes pro Vava'),
-
-        const SizedBox(width: 10),
-
-        ElevatedButton(
-          onPressed: _eduIncrementCounter,
-          child: const Icon(Icons.add),
-        ),
-      ],
-    ),
-  ],
-  
-)
-
-        
       ),
-      
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    FloatingActionButton(
-      heroTag: "btn1",
-      onPressed: _incrementCounter,
-      child: const Icon(Icons.add),
-    ),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton(
+            heroTag: "btn1",
+            onPressed: buscarDados,
+            child: const Icon(Icons.add),
+          ),
 
-    const SizedBox(width: 20), // espaço entre eles
+          const SizedBox(width: 20), // espaço entre eles
 
-    FloatingActionButton(
-      heroTag: "btn2",
-      onPressed: _desincrementCounter,
-      child: const Icon(Icons.remove),
-    ),
-  ],
-),
+          FloatingActionButton(
+            heroTag: "btn2",
+            onPressed: _desincrementCounter,
+            child: const Icon(Icons.remove),
+          ),
+        ],
+      ),
     );
-  
   }
-
-  
 }
