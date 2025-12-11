@@ -15,7 +15,7 @@ Future<void> atualizarCarros(
   String? f4,
   String? f5,
 }) async {
-  final url = Uri.parse('https://vcar-servidor.onrender.com/api/atualizar.php');
+  final url = Uri.parse('https://vcar-servidor.onrender.com/api/cars/atualizar.php');
 
   try {
     final response = await http.patch(
@@ -30,7 +30,7 @@ Future<void> atualizarCarros(
         "contato": c,
         "comprou":com,
         "ft1": f1,
-        "ft2": f3,
+        "ft2": f2,
         "ft3": f3,
         "ft4": f4,
         "ft5": f5,

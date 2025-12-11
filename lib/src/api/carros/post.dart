@@ -1,7 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<void> criarCarros(ma, mo, d, p, con,com, f1, f2, f3, f4, f5) async {
+Future<void> criarCarros(
+  String marca,
+  String modelo,
+  String descricao,
+  String preco,
+  String contato,
+  String comprou,
+  String ft1,
+  String ft2,
+  String ft3,
+  String ft4,
+  String ft5,
+) async {
   final url = Uri.parse(
     'https://vcar-servidor.onrender.com/api/cars/cadastrar.php',
   );
@@ -11,17 +23,17 @@ Future<void> criarCarros(ma, mo, d, p, con,com, f1, f2, f3, f4, f5) async {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        "marca": ma,
-        "modelo": mo,
-        "descricao": d,
-        "preco": p,
-        "contato": con,
-        "comprou": com,
-        "ft1": f1,
-        "ft2": f2,
-        "ft3": f3,
-        "ft4": f4,
-        "ft5": f5,
+        "marca": marca,
+        "modelo": modelo,
+        "descricao": descricao,
+        "preco": preco,
+        "contato": contato,
+        "comprou": comprou,
+        "ft1": ft1,
+        "ft2": ft2,
+        "ft3": ft3,
+        "ft4": ft4,
+        "ft5": ft5,
       }),
     );
 
@@ -29,26 +41,10 @@ Future<void> criarCarros(ma, mo, d, p, con,com, f1, f2, f3, f4, f5) async {
       final data = jsonDecode(response.body);
       print('Sucesso: $data');
     } else {
-      print('Erro: status ${response.statusCode}');
+      print('Erro: ${response.statusCode}');
       print(response.body);
     }
   } catch (e) {
-    print('Falha ao fazer PATCH: $e');
+    print('Falha: $e');
   }
-}
-
-void main(List<String> args) {
-  criarCarros(
-    "1",
-    "bundinha",
-    "hora",
-    "fsdfsgfsdgfdg",
-    "com",
-    "",
-    "",
-    "",
-    "e",
-    "f",
-    "g",
-  );
 }

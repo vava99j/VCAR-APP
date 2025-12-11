@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:vcarros/financeiro.dart';
 import 'package:vcarros/src/api/carros/delete.dart';
 import 'package:vcarros/src/api/carros/get.dart';
 import 'package:vcarros/src/api/carros/patch.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vcarros/src/api/carros/post.dart';
-import 'dart:io';
 
 import 'package:vcarros/src/api/financeiro/post.dart';
 
@@ -55,64 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _tamanho = 0;
   List carros = [];
   List<String> imagens = [];
-  String um = 'ft1';
-
-  void _marca(i) {
-    setState(() {
-      marca = i;
-    });
-  }
-
-  void _contato(c) {
-    setState(() {
-      contato = c;
-    });
-  }
-
-  void _preco(p) {
-    setState(() {
-      preco = p;
-    });
-  }
-
-  void _modelo(i) {
-    setState(() {
-      modelo = i;
-    });
-  }
-
-  void _id(i) {
-    setState(() {
-      id = i;
-    });
-  }
-
-  void _foto(i) {
-    setState(() {
-      foto = i;
-      print(foto);
-    });
-  }
-
-  void _des(t) {
-    setState(() {
-      descricao = t;
-    });
-  }
-
-  void _vendeu(i) {
-    setState(() {
-      vendeu = i;
-      print(vendeu);
-    });
-  }
-
-  void _comprou(i) {
-    setState(() {
-      comprou = i;
-      print(comprou);
-    });
-  }
+  List ft = ["ft1", "ft2", "ft3", "ft4", "ft5"];
 
   void _tam(t) {
     setState(() {
@@ -143,21 +84,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String> converterBase64(XFile file) async {
-    final bytes = await File(file.path).readAsBytes();
+    final bytes = await file.readAsBytes();
     return base64Encode(bytes);
   }
 
   Future<void> escolherImagens() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile> result = await picker.pickMultiImage();
+    final List<XFile>? result = await picker.pickMultiImage();
 
-    if (result != null) {
-      for (var img in result) {
-        final base64String = await converterBase64(img);
-        print(base64String);
-        imagens.add(base64String);
-        _foto(base64String);
-      }
+    if (result == null || result.isEmpty) return;
+
+    imagens.clear();
+
+    for (var img in result) {
+      final base64String = await converterBase64(img);
+      imagens.add(base64String);
     }
   }
 
@@ -168,11 +109,6 @@ class _MyHomePageState extends State<MyHomePage> {
     final TextEditingController precoController = TextEditingController();
     final TextEditingController contatoController = TextEditingController();
     final TextEditingController comprouController = TextEditingController();
-    final TextEditingController ft1controller = TextEditingController();
-    final TextEditingController ft2controller = TextEditingController();
-    final TextEditingController ft3controller = TextEditingController();
-    final TextEditingController ft4controller = TextEditingController();
-    final TextEditingController ft5controller = TextEditingController();
     if (i != null) {
       marcaController.text = carros[_counter]['marca'];
       modeloController.text = carros[_counter]['modelo'];
@@ -245,13 +181,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             mo: modeloController.text,
                             p: precoController.text,
                             c: contatoController.text,
-                            f1: foto,
                             d: descricaoController.text,
-                            f2: "",
-                            f3: "",
-                            f4: "",
-                            f5: "",
+                            f1: imagens.isNotEmpty ? imagens[0] : "",
+                            f2: imagens.length > 1 ? imagens[1] : "",
+                            f3: imagens.length > 2 ? imagens[2] : "",
+                            f4: imagens.length > 3 ? imagens[3] : "",
+                            f5: imagens.length > 4 ? imagens[4] : "",
                           );
+                          carregar();
                           Navigator.pop(context);
                         },
                       )
@@ -267,12 +204,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             contatoController.text,
                             comprouController.text,
                             imagens.isNotEmpty ? imagens[0] : "",
-                            imagens.isNotEmpty ? imagens[1] : "",
-                            imagens.isNotEmpty ? imagens[2] : "",
-                            imagens.isNotEmpty ? imagens[3] : "",
-                            imagens.isNotEmpty ? imagens[4] : "",
+                            imagens.length > 1 ? imagens[1] : "",
+                            imagens.length > 2 ? imagens[2] : "",
+                            imagens.length > 3 ? imagens[3] : "",
+                            imagens.length > 4 ? imagens[4] : "",
                           );
-
+                          carregar();
                           Navigator.pop(context);
                         },
                       ),
@@ -362,6 +299,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               vendeuController.text,
                             );
                             excluirDados(carros[_counter]["id"]);
+                            carregar();
                             Navigator.pop(context);
                           },
                         ),
@@ -393,6 +331,20 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     print(' carros.lenght ${carros.length}');
     _tam(carros.length);
+  }
+
+  Image imagemBase64(String base64String) {
+    try {
+      final decodedBytes = base64Decode(base64String);
+      return Image.memory(
+        decodedBytes,
+        width: 250,
+        height: 200,
+        fit: BoxFit.cover,
+      );
+    } catch (e) {
+      return Image.asset("assets/erro.png", width: 250, height: 200);
+    }
   }
 
   @override
@@ -433,15 +385,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisSize: MainAxisSize.max,
                     spacing: 4,
                     children: [
-                      Text(carros[_counter]['marca'].toString()),
+                      Text('Carro: ${carros[_counter]['marca'].toString()}'),
                       Text(carros[_counter]['modelo'].toString()),
                     ],
                   ),
 
-                  Text(carros[_counter]['descricao'].toString()),
+                  Text(' gastou: ${carros[_counter]['comprou'].toString()}'),
+                  Text(
+                    'descrição: ${carros[_counter]['descricao'].toString()}',
+                  ),
+                  carros[_counter][ft[0]] != null &&
+                          carros[_counter][ft[0]] != ""
+                      ? imagemBase64(carros[_counter][ft[0]])
+                      : Text("Sem foto"),
+
                   Text(carros[_counter]['preco'].toString()),
-                  Text(carros[_counter][um].toString()),
-                  Text(carros[_counter]['comprou'].toString()),
                 ],
               ),
             ),
@@ -469,6 +427,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 MaterialPageRoute(builder: (_) => const SecPage()),
               );
+
+              carregar();
             },
             icon: Icon(Icons.attach_money),
           ),
