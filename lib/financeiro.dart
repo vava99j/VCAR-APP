@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vcarros/src/api/financeiro/get.dart';
+import 'package:vcarros/src/api/fipex/fipex_service.dart';
 
 class SecPage extends StatefulWidget {
   const SecPage({super.key});
@@ -13,6 +14,8 @@ class _SecPageState extends State<SecPage> {
   double gastost = 0.0;
   double liqt = 0.0;
   List carros = [];
+
+
   void _vendast(i) {
     setState(() {
       vendast = i;
@@ -56,6 +59,8 @@ class _SecPageState extends State<SecPage> {
     });
   }
 
+ 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,26 +75,27 @@ class _SecPageState extends State<SecPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Total vendas: $vendast | Total de gastos: $gastost | Lucro Liquido: $liqt',
+                  'Total: vendas: $vendast | gastos: $gastost | Liquido: $liqt',
                 ),
                 Icon(liqt > 0 ? Icons.check : Icons.close),
               ],
             ),
             const SizedBox(height: 20),
             Column(
-              spacing: 10,
               children: [
                 for (var item in carros)
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(item['marca'].toString()),
-                      Text(item['modelo'].toString()),
-                      Text(item['vendeu'].toString()),
-                      Text(item['comprou'].toString()),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("${item['marca']} "),
+                        Text("${item['modelo']} "),
+                        Text("Venda: ${item['vendeu']} "),
+                        Text("Compra: ${item['comprou']}"),
+                      ],
+                    ),
                   ),
               ],
             ),

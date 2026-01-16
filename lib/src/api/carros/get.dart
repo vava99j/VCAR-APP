@@ -15,14 +15,5 @@ Future<List<dynamic>> buscarCarros() async {
   }
 }
 
-void main() async {
-  final lista = await buscarCarros();
-  for (var item in lista) {
-  /*if (item[0] != 'honda') {
-    print(item);
-  }*/
-  print(lista[0]['modelo']);
 
-}
-}
 

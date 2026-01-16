@@ -35,8 +35,6 @@ Future<FinanceiroTotal> buscarFinanceiroTotal() async {
     if (response.statusCode == 200) {
       final decodedJson = jsonDecode(response.body);
       final Map<String, dynamic> financeiroMap = decodedJson[0];
-
-      // 2. Os valores são Strings no JSON, mas queremos Double, então usamos .parse
       final vendas = double.parse(financeiroMap['Total_Vendas'].toString());
       final gastos = double.parse(financeiroMap['Total_Compras'].toString());
       final liquido = double.parse(financeiroMap['Lucro_Liquido'].toString());
@@ -53,7 +51,7 @@ Future<FinanceiroTotal> buscarFinanceiroTotal() async {
   }
 }
 
-/*
+
 void main() async {
   try {
     final f = await buscarFinanceiroTotal();
@@ -64,7 +62,4 @@ void main() async {
   } catch (e) {
     print(e);
   }
-} */
-void main() {
-  buscarFinanceiro();
-}
+} 
