@@ -1,22 +1,7 @@
-/* import 'package:flutter/material.dart';
-
-class MyWidget extends StatefulWidget {
-  const MyWidget({super.key});
-
-  @override
-  State<MyWidget> createState() => _MyWidgetState();
-}
-
-class _MyWidgetState extends State<MyWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-    
-  }
-} */
-
+import 'package:flutter/gestures.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:vcarros/src/api/carros/patch.dart';
 import 'package:vcarros/src/api/carros/post.dart';
 import 'package:vcarros/src/api/fipex/fipex_service.dart';
 import 'dart:convert';
@@ -38,9 +23,25 @@ class _NeEcarro extends State<NeEcarro> {
   List anoSelecionado = [];
   List<String> imagensModal = [];
   List<String> imagens = [];
+  List ft = ["ft1", "ft2", "ft3", "ft4", "ft5"];
 
   @override
   void initState() {
+    if (widget.carro != null) {
+      final c = widget.carro!;
+      descricaoController.text = c['descricao'] ?? "";
+      precoController.text = c['preco'] ?? "";
+      contatoController.text = c['contato'] ?? "";
+      comprouController.text = c['comprou'] ?? "";
+
+      for (var f in ft) {
+        if (c[f] != null && c[f].toString().isNotEmpty) {
+          imagensModal.add(c[f]);
+        }
+      }
+    } else {
+      contatoController.text = '11 981623494';
+    }
     super.initState();
     carregar();
   }
@@ -75,14 +76,7 @@ class _NeEcarro extends State<NeEcarro> {
     }
   }
 
-  Future<void> carregarAno(String marcaId) async {
-    try {
-      final resultadoAnos = await buscarAno(marcaId);
-      setState(() {});
-    } catch (e) {
-      print("Erro ao carregar modelos: $e");
-    }
-  }
+
 
   Future<String> converterBase64(XFile file) async {
     final bytes = await file.readAsBytes();
@@ -123,7 +117,7 @@ class _NeEcarro extends State<NeEcarro> {
               items: marcas.map((item) {
                 return DropdownMenuItem(
                   value: item,
-                  child: Text(item['nome'].toString()),
+                  child:Center(child:  Text(item['nome'].toString()))
                 );
               }).toList(),
               onChanged: (novoValor) {
@@ -135,9 +129,7 @@ class _NeEcarro extends State<NeEcarro> {
                 carregarModelos(novoValor['valor'].toString());
               },
             ),
-
             const SizedBox(height: 10),
-
             DropdownButton<dynamic>(
               alignment: AlignmentGeometry.center,
               value: modeloSelecionado,
@@ -146,7 +138,7 @@ class _NeEcarro extends State<NeEcarro> {
               items: modelos.map((item) {
                 return DropdownMenuItem(
                   value: item,
-                  child: Text(item['modelo'].toString()),
+                  child:Center(child:  Text(item['modelo'].toString()))
                 );
               }).toList(),
               onChanged: (novoValor) {
@@ -154,31 +146,35 @@ class _NeEcarro extends State<NeEcarro> {
                   modeloSelecionado = novoValor;
                   modeloController.text = novoValor['modelo'].toString();
                 });
-
-                carregarAno(novoValor['valor'].toString());
               },
             ),
 
             TextField(
               textAlign: TextAlign.center,
               controller: descricaoController,
-              decoration: const InputDecoration(labelText: "Descrição"),
+              decoration: InputDecoration(
+                labelText: "Descrição" , 
+                floatingLabelAlignment: FloatingLabelAlignment.center, 
+                alignLabelWithHint: true),
             ),
 
             TextField(
-              keyboardType: TextInputType.numberWithOptions(),
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.phone,
               controller: comprouController,
-              decoration: const InputDecoration(labelText: "Preço Gasto (R\$)"),
+              decoration: const InputDecoration(labelText: "Preço Gasto (R\$)", floatingLabelAlignment: FloatingLabelAlignment.center),
             ),
             TextField(
-              keyboardType: TextInputType.numberWithOptions(),
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
               controller: contatoController,
-              decoration: const InputDecoration(labelText: "Contato"),
+              decoration: const InputDecoration(labelText: "Contato", floatingLabelAlignment: FloatingLabelAlignment.center),
             ),
             TextField(
-              keyboardType: TextInputType.numberWithOptions(),
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.phone,
               controller: precoController,
-              decoration: const InputDecoration(labelText: "Preço Venda (R\$)"),
+              decoration: const InputDecoration(labelText: "Preço Venda (R\$)", floatingLabelAlignment: FloatingLabelAlignment.center),
             ),
 
             const SizedBox(height: 16),
@@ -205,24 +201,29 @@ class _NeEcarro extends State<NeEcarro> {
               },
             ),
 
-            if (imagensModal.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.only(top: 10),
-                height: 60,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: imagensModal.length,
-                  itemBuilder: (ctx, idx) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Image.memory(
-                      base64Decode(imagensModal[idx]),
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
+           if (imagensModal.isNotEmpty)
+  Container(
+    margin: const EdgeInsets.only(top: 10),
+    height: 60,
+      child: ListView.builder(
+        shrinkWrap: true, // isso q centraliza, inacredivel. 
+        scrollDirection: Axis.horizontal,
+        itemCount: imagensModal.length,
+        itemBuilder: (ctx, idx) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: ClipRRect( 
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(
+              base64Decode(imagensModal[idx]),
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ),
+    ),
+  
             SizedBox(height: 20),
 
             ElevatedButton(
@@ -232,23 +233,40 @@ class _NeEcarro extends State<NeEcarro> {
                   return;
                 }
                 try {
-                  await criarCarros(
-                    marcaController.text,
-                    modeloController.text,
-                    descricaoController.text,
-                    precoController.text,
-                    contatoController.text,
-                    comprouController.text,
-                    imagensModal.isNotEmpty ? imagensModal[0] : "",
-                    imagensModal.length > 1 ? imagensModal[1] : "",
-                    imagensModal.length > 2 ? imagensModal[2] : "",
-                    imagensModal.length > 3 ? imagensModal[3] : "",
-                    imagensModal.length > 4 ? imagensModal[4] : "",
-                  );
+                  if (widget.carro == null) {
+                    await criarCarros(
+                      marcaController.text,
+                      modeloController.text,
+                      descricaoController.text,
+                      precoController.text,
+                      contatoController.text,
+                      comprouController.text,
+                      imagensModal.isNotEmpty ? imagensModal[0] : "",
+                      imagensModal.length > 1 ? imagensModal[1] : "",
+                      imagensModal.length > 2 ? imagensModal[2] : "",
+                      imagensModal.length > 3 ? imagensModal[3] : "",
+                      imagensModal.length > 4 ? imagensModal[4] : "",
+                    );
+                  } else {
+                    await atualizarCarros(
+                      widget.carro!['id'],
+                      ma: marcaController.text,
+                      mo: modeloController.text,
+                      d: descricaoController.text,
+                      p: precoController.text,
+                      c: contatoController.text,
+                      com: comprouController.text,
+                      f1: imagensModal.isNotEmpty ? imagensModal[0] : "",
+                      f2: imagensModal.length > 1 ? imagensModal[1] : "",
+                      f3: imagensModal.length > 2 ? imagensModal[2] : "",
+                      f4: imagensModal.length > 3 ? imagensModal[3] : "",
+                      f5: imagensModal.length > 4 ? imagensModal[4] : "",
+                    );
+                  }
                 } catch (e) {
                   print(e);
-                }finally{
-                Navigator.pop(context);
+                } finally {
+                  Navigator.pop(context , true);
                 }
               },
 

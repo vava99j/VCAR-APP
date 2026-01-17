@@ -323,7 +323,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       : "",
                                 );
                               }
-                              await carregar();
+                              await carregarM();
                               Navigator.pop(context);
                             },
                             child: const Text("Salvar"),
@@ -403,7 +403,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
 
                             await excluirDados(carros[_counter]["id"]);
-                            await carregar();
+                            await carregarM();
 
                             Navigator.pop(context);
                           },
@@ -429,7 +429,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> carregar() async {
+  Future<void> carregarM() async {
     final resultado = await buscarCarros();
     setState(() {
       carros = resultado;
@@ -471,7 +471,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    carregar();
+    carregarM();
   }
 
   @override
@@ -492,7 +492,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     context,
                     MaterialPageRoute(builder: (_) => const SecPage()),
                   );
-                  carregar();
+                  carregarM();
                 },
                 icon: Icon(Icons.attach_money),
               ),
@@ -502,7 +502,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     context,
                     MaterialPageRoute(builder: (_) => const NeEcarro()),
                   );
-                  carregar();
+                  carregarM();
                 },
                 icon: Icon(Icons.add),
               ),
@@ -523,7 +523,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             if (carros.isEmpty)
               IconButton(
-                onPressed: carregar,
+                onPressed: carregarM,
                 icon: Icon(Icons.replay_outlined),
               ),
             Column(
@@ -608,8 +608,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 MaterialPageRoute(builder: (_) => const SecPage()),
               );
-
-              carregar();
             },
             icon: Icon(Icons.attach_money),
           ),
@@ -617,14 +615,26 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(width: 20),
           IconButton(
             onPressed: () {
-              modalEeN("Novo");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      NeEcarro(),
+                ),
+              );
             },
             icon: Icon(Icons.add),
           ),
           const SizedBox(width: 20),
           IconButton(
-            onPressed: () {
-              modalEeN("Editar", i: carros[_counter]["id"]);
+                onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      NeEcarro(carro: carros[_counter]),
+                ),
+              );
             },
             icon: Icon(Icons.edit),
           ),
