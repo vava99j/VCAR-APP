@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vcarros/financeiro.dart';
 import 'package:vcarros/src/api/carros/delete.dart';
 import 'package:vcarros/src/api/carros/get.dart';
-import 'package:vcarros/src/api/carros/patch.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vcarros/src/api/carros/post.dart';
 
 import 'package:vcarros/src/api/financeiro/post.dart';
 import 'package:vcarros/src/api/fipex/fipex_service.dart';
@@ -46,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String marca = "";
   String modelo = "";
   String descricao = "";
-  String contato = "";
+  String telefone = "";
   String preco = "";
   String id = '';
   String foto = '';
@@ -123,228 +121,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> modalEeN(String t, {int? i}) async {
-    final TextEditingController marcaController = TextEditingController();
-    final TextEditingController modeloController = TextEditingController();
-    final TextEditingController descricaoController = TextEditingController();
-    final TextEditingController precoController = TextEditingController();
-    final TextEditingController contatoController = TextEditingController();
-    final TextEditingController comprouController = TextEditingController();
-
-    List<String> imagensModal = [];
-
-    if (i != null) {
-      final c = carros[_counter];
-      marcaController.text = c['marca'] ?? "";
-      modeloController.text = c['modelo'] ?? "";
-      descricaoController.text = c['descricao'] ?? "";
-      precoController.text = c['preco'] ?? "";
-      contatoController.text = c['contato'] ?? "";
-      comprouController.text = c['comprou'] ?? "";
-
-      for (var f in ft) {
-        if (c[f] != null && c[f].toString().isNotEmpty) {
-          imagensModal.add(c[f]);
-        }
-      }
-    } else {
-      contatoController.text = '11 981623494';
-    }
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        t,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: marcaController,
-                        decoration: const InputDecoration(labelText: "Modelo"),
-                      ),
-                      TextField(
-                        controller: modeloController,
-                        decoration: const InputDecoration(labelText: "Marca"),
-                      ),
-                      TextField(
-                        controller: descricaoController,
-                        decoration: const InputDecoration(
-                          labelText: "Descrição",
-                        ),
-                      ),
-                      TextField(
-                        controller: precoController,
-                        decoration: const InputDecoration(
-                          labelText: "Preço Venda (R\$)",
-                        ),
-                      ),
-                      TextField(
-                        controller: comprouController,
-                        decoration: const InputDecoration(
-                          labelText: "Preço Compra (R\$)",
-                        ),
-                      ),
-                      TextField(
-                        controller: contatoController,
-                        decoration: const InputDecoration(labelText: "Contato"),
-                      ),
-
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.photo_camera),
-                        label: Text(
-                          imagensModal.isEmpty
-                              ? "Add Fotos"
-                              : "Alterar Fotos (${imagensModal.length})",
-                        ),
-                        onPressed: () async {
-                          final picker = ImagePicker();
-                          final result = await picker.pickMultiImage();
-                          if (result.isNotEmpty) {
-                            List<String> novas = [];
-                            for (var img in result.take(5)) {
-                              final bytes = await img.readAsBytes();
-                              novas.add(base64Encode(bytes));
-                            }
-                            setModalState(() {
-                              imagensModal = novas;
-                            });
-                          }
-                        },
-                      ),
-
-                      if (imagensModal.isNotEmpty)
-                        Container(
-                          margin: const EdgeInsets.only(top: 10),
-                          height: 60,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: imagensModal.length,
-                            itemBuilder: (ctx, idx) => Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                              child: Image.memory(
-                                base64Decode(imagensModal[idx]),
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              "Cancelar",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (marcaController.text.isEmpty ||
-                                  modeloController.text.isEmpty) {
-                                return;
-                              }
-
-                              if (i == null) {
-                                await criarCarros(
-                                  marcaController.text,
-                                  modeloController.text,
-                                  descricaoController.text,
-                                  precoController.text,
-                                  contatoController.text,
-                                  comprouController.text,
-                                  imagensModal.isNotEmpty
-                                      ? imagensModal[0]
-                                      : "",
-                                  imagensModal.length > 1
-                                      ? imagensModal[1]
-                                      : "",
-                                  imagensModal.length > 2
-                                      ? imagensModal[2]
-                                      : "",
-                                  imagensModal.length > 3
-                                      ? imagensModal[3]
-                                      : "",
-                                  imagensModal.length > 4
-                                      ? imagensModal[4]
-                                      : "",
-                                );
-                              } else {
-                                await atualizarCarros(
-                                  carros[_counter]['id'],
-                                  ma: marcaController.text,
-                                  mo: modeloController.text,
-                                  d: descricaoController.text,
-                                  p: precoController.text,
-                                  c: contatoController.text,
-                                  com: comprouController.text,
-                                  f1: imagensModal.isNotEmpty
-                                      ? imagensModal[0]
-                                      : "",
-                                  f2: imagensModal.length > 1
-                                      ? imagensModal[1]
-                                      : "",
-                                  f3: imagensModal.length > 2
-                                      ? imagensModal[2]
-                                      : "",
-                                  f4: imagensModal.length > 3
-                                      ? imagensModal[3]
-                                      : "",
-                                  f5: imagensModal.length > 4
-                                      ? imagensModal[4]
-                                      : "",
-                                );
-                              }
-                              await carregarM();
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Salvar"),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   Future<void> modalD(i) async {
     final TextEditingController vendeuController = TextEditingController();
     final TextEditingController gastouController = TextEditingController();
-    gastouController.text = carros[_counter]["comprou"];
+    gastouController.text = carros[_counter]["preco_compra"];
 
     showDialog(
       context: context,
@@ -403,9 +183,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
 
                             await excluirDados(carros[_counter]["id"]);
-                            await carregarM();
 
                             Navigator.pop(context);
+                            await carregarM();
                           },
                         ),
                       ],
@@ -544,9 +324,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text('Carro: ${carros[_counter]['marca'].toString()}'),
                   Text(carros[_counter]['modelo'].toString()),
                   Text(
-                    'descrição: ${carros[_counter]['descricao'].toString()}',
+                    'Descrição: ${carros[_counter]['descricao'].toString()}',
                   ),
-                  Text('Contato: ${carros[_counter]['contato'].toString()}'),
+                  Text('Telefone: ${carros[_counter]['telefone'].toString()}'),
 
                   Dismissible(
                     key: ValueKey(carros[_counter]['id']),
@@ -578,9 +358,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   Text(
-                    'A venda por: BRL${carros[_counter]['preco'].toString()}',
+                    'A venda por: BRL${carros[_counter]['preco_venda'].toString()}',
                   ),
-                  Text('Gastou: BRL${carros[_counter]['comprou'].toString()}'),
+                  Text(
+                    'Gastou: BRL${carros[_counter]['preco_compra'].toString()}',
+                  ),
                 ],
               ),
             ),
@@ -597,7 +379,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-
+      
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -617,30 +399,32 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      NeEcarro(),
-                ),
+                MaterialPageRoute(builder: (context) => NeEcarro()),
               );
             },
             icon: Icon(Icons.add),
           ),
           const SizedBox(width: 20),
           IconButton(
-                onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final resultado = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      NeEcarro(carro: carros[_counter]),
+                  builder: (context) => NeEcarro(carro: carros[_counter]),
                 ),
               );
+              if (resultado == true) {
+                setState(() {
+                  carregarM();
+                });
+              }
             },
             icon: Icon(Icons.edit),
           ),
           const SizedBox(width: 20),
           IconButton(
             onPressed: () {
+              print(carros[_counter]["id"]);
               modalD(carros[_counter]["id"]);
             },
             icon: const Icon(Icons.delete_forever),

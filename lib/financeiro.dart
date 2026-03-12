@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vcarros/src/api/financeiro/get.dart';
-import 'package:vcarros/src/api/fipex/fipex_service.dart';
 
 class SecPage extends StatefulWidget {
   const SecPage({super.key});
@@ -92,8 +91,8 @@ class _SecPageState extends State<SecPage> {
                       children: [
                         Text("${item['marca']} "),
                         Text("${item['modelo']} "),
-                        Text("Venda: ${item['vendeu']} "),
-                        Text("Compra: ${item['comprou']}"),
+                        Text("Venda: ${item['valor_venda']} "),
+                        Text("Compra: ${item['valor_compra']}"),
                       ],
                     ),
                   ),

@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 
 Future<List<dynamic>> buscarFinanceiro() async {
   final url = Uri.parse(
-    'https://vcar-servidor.onrender.com/api/financeiro/listar.php',
-  );
+'http://localhost:8000/financeiro',  );
 
   final response = await http.get(url);
 

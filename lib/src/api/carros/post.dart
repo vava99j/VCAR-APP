@@ -5,8 +5,9 @@ Future<void> criarCarros(
   String marca,
   String modelo,
   String descricao,
+  String ano,
   String preco,
-  String contato,
+  String telefone,
   String comprou,
   String ft1,
   String ft2,
@@ -15,7 +16,7 @@ Future<void> criarCarros(
   String ft5,
 ) async {
   final url = Uri.parse(
-    'https://vcar-servidor.onrender.com/api/cars/cadastrar.php',
+    'http://localhost:8000/carros'
   );
 
   try {
@@ -25,10 +26,11 @@ Future<void> criarCarros(
       body: jsonEncode({
         "marca": marca,
         "modelo": modelo,
+        "ano": ano,
         "descricao": descricao,
-        "preco": preco,
-        "contato": contato,
-        "comprou": comprou,
+        "precoVenda": preco,
+        "telefone": telefone,
+        "precoCompra": comprou,
         "ft1": ft1,
         "ft2": ft2,
         "ft3": ft3,

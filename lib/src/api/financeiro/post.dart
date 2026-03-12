@@ -3,14 +3,14 @@ import 'package:http/http.dart' as http;
 
 Future<void> criarFinanceiro(ma, mo, c, v) async {
   final url = Uri.parse(
-    'https://vcar-servidor.onrender.com/api/financeiro/cadastrar.php',
+    'http://localhost:8000/pedido',
   );
 
   try {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"marca": ma, "modelo": mo, "comprou": c, "vendeu": v}),
+      body: jsonEncode({"marca": ma, "modelo": mo, "preco_compra": c, "preco_venda": v}),
     );
 
     if (response.statusCode == 201) {

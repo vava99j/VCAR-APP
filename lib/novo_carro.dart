@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:vcarros/src/api/carros/patch.dart';
@@ -29,10 +28,11 @@ class _NeEcarro extends State<NeEcarro> {
   void initState() {
     if (widget.carro != null) {
       final c = widget.carro!;
+      anoController.text = c['ano'] ?? "";
       descricaoController.text = c['descricao'] ?? "";
-      precoController.text = c['preco'] ?? "";
-      contatoController.text = c['contato'] ?? "";
-      comprouController.text = c['comprou'] ?? "";
+      precoController.text = c['preco_venda'] ?? "";
+      telefoneController.text = c['telefone'] ?? "";
+      comprouController.text = c['preco_compra'] ?? "";
 
       for (var f in ft) {
         if (c[f] != null && c[f].toString().isNotEmpty) {
@@ -40,7 +40,7 @@ class _NeEcarro extends State<NeEcarro> {
         }
       }
     } else {
-      contatoController.text = '11 981623494';
+      telefoneController.text = '11 981623494';
     }
     super.initState();
     carregar();
@@ -50,8 +50,9 @@ class _NeEcarro extends State<NeEcarro> {
   final TextEditingController modeloController = TextEditingController();
   final TextEditingController descricaoController = TextEditingController();
   final TextEditingController precoController = TextEditingController();
-  final TextEditingController contatoController = TextEditingController();
+  final TextEditingController telefoneController = TextEditingController();
   final TextEditingController comprouController = TextEditingController();
+  final TextEditingController anoController = TextEditingController();
 
   Future<void> carregar() async {
     try {
@@ -75,8 +76,6 @@ class _NeEcarro extends State<NeEcarro> {
       print("Erro ao carregar modelos: $e");
     }
   }
-
-
 
   Future<String> converterBase64(XFile file) async {
     final bytes = await file.readAsBytes();
@@ -117,7 +116,7 @@ class _NeEcarro extends State<NeEcarro> {
               items: marcas.map((item) {
                 return DropdownMenuItem(
                   value: item,
-                  child:Center(child:  Text(item['nome'].toString()))
+                  child: Center(child: Text(item['nome'].toString())),
                 );
               }).toList(),
               onChanged: (novoValor) {
@@ -138,7 +137,7 @@ class _NeEcarro extends State<NeEcarro> {
               items: modelos.map((item) {
                 return DropdownMenuItem(
                   value: item,
-                  child:Center(child:  Text(item['modelo'].toString()))
+                  child: Center(child: Text(item['modelo'].toString())),
                 );
               }).toList(),
               onChanged: (novoValor) {
@@ -149,32 +148,53 @@ class _NeEcarro extends State<NeEcarro> {
               },
             ),
 
+            
             TextField(
               textAlign: TextAlign.center,
               controller: descricaoController,
               decoration: InputDecoration(
-                labelText: "Descrição" , 
-                floatingLabelAlignment: FloatingLabelAlignment.center, 
-                alignLabelWithHint: true),
+                labelText: "Descrição",
+                floatingLabelAlignment: FloatingLabelAlignment.center,
+                alignLabelWithHint: true,
+              ),
+            ),
+
+              TextField(
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
+              controller: anoController,
+              decoration: const InputDecoration(
+                labelText: "Ano",
+                floatingLabelAlignment: FloatingLabelAlignment.center,
+              ),
             ),
 
             TextField(
               textAlign: TextAlign.center,
-              keyboardType: TextInputType.phone,
+              keyboardType: TextInputType.number,
               controller: comprouController,
-              decoration: const InputDecoration(labelText: "Preço Gasto (R\$)", floatingLabelAlignment: FloatingLabelAlignment.center),
+              decoration: const InputDecoration(
+                labelText: "Preço Gasto (R\$)",
+                floatingLabelAlignment: FloatingLabelAlignment.center,
+              ),
+            ),
+            TextField(
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.phone,
+              controller: telefoneController,
+              decoration: const InputDecoration(
+                labelText: "Telefone",
+                floatingLabelAlignment: FloatingLabelAlignment.center,
+              ),
             ),
             TextField(
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
-              controller: contatoController,
-              decoration: const InputDecoration(labelText: "Contato", floatingLabelAlignment: FloatingLabelAlignment.center),
-            ),
-            TextField(
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.phone,
               controller: precoController,
-              decoration: const InputDecoration(labelText: "Preço Venda (R\$)", floatingLabelAlignment: FloatingLabelAlignment.center),
+              decoration: const InputDecoration(
+                labelText: "Preço Venda (R\$)",
+                floatingLabelAlignment: FloatingLabelAlignment.center,
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -201,29 +221,29 @@ class _NeEcarro extends State<NeEcarro> {
               },
             ),
 
-           if (imagensModal.isNotEmpty)
-  Container(
-    margin: const EdgeInsets.only(top: 10),
-    height: 60,
-      child: ListView.builder(
-        shrinkWrap: true, // isso q centraliza, inacredivel. 
-        scrollDirection: Axis.horizontal,
-        itemCount: imagensModal.length,
-        itemBuilder: (ctx, idx) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: ClipRRect( 
-            borderRadius: BorderRadius.circular(8),
-            child: Image.memory(
-              base64Decode(imagensModal[idx]),
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      ),
-    ),
-  
+            if (imagensModal.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                height: 60,
+                child: ListView.builder(
+                  shrinkWrap: true, // isso q centraliza, inacredivel.
+                  scrollDirection: Axis.horizontal,
+                  itemCount: imagensModal.length,
+                  itemBuilder: (ctx, idx) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(
+                        base64Decode(imagensModal[idx]),
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
             SizedBox(height: 20),
 
             ElevatedButton(
@@ -238,8 +258,9 @@ class _NeEcarro extends State<NeEcarro> {
                       marcaController.text,
                       modeloController.text,
                       descricaoController.text,
+                      anoController.text,
                       precoController.text,
-                      contatoController.text,
+                      telefoneController.text,
                       comprouController.text,
                       imagensModal.isNotEmpty ? imagensModal[0] : "",
                       imagensModal.length > 1 ? imagensModal[1] : "",
@@ -248,13 +269,15 @@ class _NeEcarro extends State<NeEcarro> {
                       imagensModal.length > 4 ? imagensModal[4] : "",
                     );
                   } else {
+                    print('${widget.carro!['id']}');
                     await atualizarCarros(
                       widget.carro!['id'],
                       ma: marcaController.text,
                       mo: modeloController.text,
                       d: descricaoController.text,
+                      a: anoController.text,
                       p: precoController.text,
-                      c: contatoController.text,
+                      c: telefoneController.text,
                       com: comprouController.text,
                       f1: imagensModal.isNotEmpty ? imagensModal[0] : "",
                       f2: imagensModal.length > 1 ? imagensModal[1] : "",
@@ -266,7 +289,7 @@ class _NeEcarro extends State<NeEcarro> {
                 } catch (e) {
                   print(e);
                 } finally {
-                  Navigator.pop(context , true);
+                  Navigator.pop(context, true);
                 }
               },
 

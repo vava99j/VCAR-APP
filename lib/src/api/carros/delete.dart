@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<void> excluirDados(int id) async {
-  final url = Uri.parse('https://vcar-servidor.onrender.com/api/cars/excluir.php');
+  final url = Uri.parse(
+    'http://localhost:8000/carros'
+  );
 
   try {
-    final response = await http.post(
+    final response = await http.delete(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"id": id.toString()}),
@@ -23,6 +25,3 @@ Future<void> excluirDados(int id) async {
   }
 }
 
-void main() {
-  excluirDados(4);
-}
